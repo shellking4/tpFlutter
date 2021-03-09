@@ -1,0 +1,101 @@
+name: delivery_app
+description: A delivery app .
+
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_sequence_animation: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_sequence_animation-3.0.1
+  animated_text_kit: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/animated_text_kit-3.1.0
+  animations: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/animations-1.1.2
+  build_verify: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/build_verify-1.1.1
+  flutter_datetime_picker: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_datetime_picker-1.4.0
+  floor_generator: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/floor_generator-0.18.0
+  moor: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/moor-3.4.0
+  route_transitions: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/route_transitions-1.0.2
+  mdi: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/mdi-3.0.0
+  sqlite3_flutter_libs: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/sqlite3_flutter_libs-0.3.0
+  path_provider: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.6.27
+  path: ^1.7.0
+  flappy_search_bar:
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flappy_search_bar-1.7.2
+
+#  cupertino_icons: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  moor_generator: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/moor_generator-3.4.1
+  build_runner: 
+    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/build_runner-1.10.13
+
+#dependency_overrides:
+#  path: 
+#    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.0-nullsafety.1
+#  moor_generator: 
+#    path: /opt/flutter/flutter/.pub-cache/hosted/pub.dartlang.org/moor_generator-3.4.1
+flutter:
+  uses-material-design: true
+
+  assets:
+    - images/
+    - assets/hymnsData.db
+  
+  fonts:
+    - family: mono
+      fonts:
+      - asset: fonts/boldMono.ttf
+
+    - family: Almendra
+      fonts:
+      - asset: fonts/Almendra-Regular.otf
+
+    - family:  CustomIcons
+      fonts:
+      - asset: fonts/CustomIcons.ttf
+    
+    - family:  Pacifico
+      fonts:
+      - asset: fonts/Pacifico/Pacifico-Regular.ttf
+    
+    - family:  Arvo
+      fonts:
+      - asset: fonts/Arvo/Arvo-Italic.ttf
+    
+    - family:  CodaCaption
+      fonts:
+      - asset: fonts/CodaCaption/CodaCaption-ExtraBold.ttf
+    
+    - family:  Anton
+      fonts:
+      - asset: fonts/Anton/Anton-Regular.ttf
+    
+    - family:  PermanentMarker
+      fonts:
+      - asset: fonts/PermanentMarker/PermanentMarker-Regular.ttf
+      
+    - family:  Lobster
+      fonts:
+      - asset: fonts/Lobster/Lobster-Regular.ttf
+    
+    - family:  Prata
+      fonts:
+      - asset: fonts/Prata/Prata-Regular.ttf
