@@ -1,0 +1,14 @@
+CREATE TABLE livreurs (
+  id INTEGER(10) NOT NULL PRIMARY KEY AUTOINCREMENT,
+  login TEXT(255) NOT NULL,
+  password TEXT(255) NOT NULL
+) AS Livreur;
+
+CREATE TABLE receptionnaires (
+  id INTEGER(10) NOT NULL PRIMARY KEY AUTOINCREMENT,
+  nomPrenoms TEXT(255) NOT NULL,
+  telephone TEXT(255) NOT NULL,
+  PRIMARY KEY ("id")
+) AS Receptionnaire;
+
+createEntry: INSERT INTO livreurs (login, password) VALUES (:login, :password);

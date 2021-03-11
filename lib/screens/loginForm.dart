@@ -1,4 +1,6 @@
-import 'package:delivery_app/screens/homeScreen.dart';
+import 'dart:async';
+import 'package:delivery_app/database/dbServices.dart';
+import 'package:delivery_app/database/database.dart';
 import 'package:delivery_app/utils/button.dart';
 import 'package:delivery_app/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +20,11 @@ class _LoginFormState extends State<LoginForm> {
   TextEditingController loginFieldController;
   TextEditingController passFieldController;
   final _formKey = GlobalKey<FormState>();
-
+  DbService dbService;
   bool _isInAsyncCall = false;
   bool _isInvalidAsyncLogin = false;
+  Livreur livreur;
+  Receptionnaire receptionnaire;
 
   // ignore: unused_element
   _submit() async {
@@ -36,13 +40,14 @@ class _LoginFormState extends State<LoginForm> {
   @override
   initState() {
     super.initState();
+    dbService = DbService();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
   }
 
-  String _validateLogin(String value) {
+  String _validateField(String value) {
     if (value.length == 0) {
-      return "Veuillez entrer votre login";
+      return "Veuillez remplir ce champ";
     }
     return null;
   }
@@ -51,6 +56,13 @@ class _LoginFormState extends State<LoginForm> {
     loginFieldController.text = '';
     passFieldController.text = '';
   }
+
+  startTime() async {
+    var _duration = new Duration(seconds: 3);
+    return Timer(_duration, loadInformation);
+  }
+
+  loadInformation() {}
 
   @override
   Widget build(BuildContext context) {
@@ -83,26 +95,26 @@ class _LoginFormState extends State<LoginForm> {
                         },
                         decoration:
                             kTextFieldDecoration.copyWith(hintText: 'Login'),
-                        validator: _validateLogin),
+                        validator: _validateField),
                     SizedBox(height: 20.0),
                     TextFormField(
-                      controller: passFieldController,
-                      obscureText: true,
-                      textAlign: TextAlign.center,
-                      onSaved: (value) {
-                        password = value;
-                      },
-                      decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Mot de Passe'),
-                    ),
-                    SizedBox(height: 20.0),
+                        controller: passFieldController,
+                        obscureText: true,
+                        textAlign: TextAlign.center,
+                        onSaved: (value) {
+                          password = value;
+                        },
+                        decoration: kTextFieldDecoration.copyWith(
+                            hintText: 'Mot de Passe'),
+                        validator: _validateField),
+                    SizedBox(height: 50.0),
                     RoundedButton(
                         title: "S'AUTHENTIFIER",
                         color: Color(0xFF1B5E20),
                         width: 300.0,
                         onPressed: () {
                           _submit();
-                        })
+                        }),
                   ]))
             ],
           ),

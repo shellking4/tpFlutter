@@ -19,7 +19,6 @@ class AuthScreen extends StatelessWidget {
           ),
           iconTheme: IconThemeData(color: Color(0xFFFFC400)),
           centerTitle: true,
-          backgroundColor: Color(0xFF1B5E20),
           toolbarHeight: 70.0,
         ),
         body: Stack(
