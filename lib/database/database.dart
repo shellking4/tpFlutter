@@ -1,34 +1,158 @@
 import 'dart:io';
-import 'package:moor/moor.dart';
-import 'package:moor/ffi.dart';
+
+import 'package:delivery_app/models/Livreur.dart';
+import 'package:delivery_app/models/Order.dart';
+import 'package:delivery_app/models/Receptionnaire.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:sqflite/sqflite.dart';
 
-part 'database.g.dart';
+class DatabaseProvider {
+  final String tableLivraison = 'tableLivraison';
+  final String tableReceptionnaire = 'tableReceptionnaire';
+  final String tableLivreur = 'tableLivreur';
+  final String columnId = '_id';
+  final String columnNomProduit = 'nomProduit';
+  final String columnNomPrenom = 'nomPrenom';
+  final String columnTel = 'tel';
+  final String columnCoutTotal = 'coutTotal';
+  final String columnEtatLivraison = 'etatLivraison';
+  final String columnLogin = 'login';
+  final String columnPassword = 'password';
 
-@UseMoor(
-  include: {'tables.moor'},
-)
-class DeliveryAppDb extends _$DeliveryAppDb {
-  DeliveryAppDb() : super(_openConnection());
+  static final DatabaseProvider _instance = new DatabaseProvider.internal();
 
-  @override
-  int get schemaVersion => 1;
-}
+  factory DatabaseProvider() => _instance;
 
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'app.db'));
+  Database _db;
 
-    if (!await file.exists()) {
-      // Extract the existing database file from dataFiles
-      final blob = await rootBundle.load('assets/deliveryApp.db');
-      final blobBuffer = blob.buffer;
-      await file.writeAsBytes(
-          blobBuffer.asUint8List(blob.offsetInBytes, blob.lengthInBytes));
+  DatabaseProvider.internal();
+
+  Future<Database> get db async {
+    if (_db != null) {
+      return _db;
     }
-    return VmDatabase(file);
-  });
+    _db = await create();
+
+    return _db;
+  }
+
+  Future create() async {
+    Directory path = await getApplicationDocumentsDirectory();
+    String _dbPath = join(path.path, "topFood._db");
+
+    _db = await openDatabase(_dbPath, version: 1, onCreate: this._create);
+  }
+
+  Future _create(Database _db, int version) async {
+    await _db.execute("""
+            create table $tableReceptionnaire ($columnId integer primary key,$columnNomPrenom text not null,$columnTel text)""");
+    await _db.execute("""
+            create table $tableLivreur ($columnId integer primary key,$columnLogin text not null,$columnPassword text)""");
+    await _db.execute("""
+            create table $tableLivraison ($columnId integer primary key,$columnNomPrenom text not null,$columnNomProduit text not null,$columnEtatLivraison text not null,$columnTel text not null,$columnCoutTotal integer)""");
+  }
+
+  Future insertLivreur(Livreur livreur) async {
+    List<Map> maps = await _db.query(tableLivreur);
+    if (maps.length > 0) {
+    } else {
+      await _db.insert(tableLivreur, livreur.toMap()).catchError((e) {
+        print(e);
+      });
+    }
+  }
+
+  Future<Livreur> getLivreur(int id) async {
+    List<Map> maps = await _db.query(tableLivreur,
+        columns: [
+          columnId,
+          columnLogin,
+          columnPassword,
+        ],
+        where: '$columnId = ?',
+        whereArgs: [id]);
+    if (maps.length > 0) {
+      return Livreur.fromMap(maps.first);
+    } else {
+      print('hroihnroh');
+    }
+    return null;
+  }
+
+  Future insertOrder(Order order) async {
+    List<Map> maps = await _db.query(tableLivraison);
+    if (maps.length > 0) {
+    } else {
+      await _db.insert(tableLivraison, order.toMap()).catchError((e) {
+        print(e);
+      });
+    }
+  }
+
+  Future<int> updateOrder(Order order) async {
+    return await _db.update(tableLivraison, order.toMap(),
+        where: '$columnId = ?', whereArgs: [order.id]);
+  }
+
+  Future<List<Order>> getAllOrder() async {
+    List<Order> orderList = new List();
+    List<Map> maps = await _db.query(tableLivraison);
+    if (maps.length > 0) {
+      maps.forEach((element) {
+        orderList.add(Order.fromMap(element));
+      });
+
+      return orderList;
+    }
+
+    return null;
+  }
+
+  Future<Order> getOrder(int id) async {
+    List<Map> maps = await _db.query(tableLivraison,
+        columns: [
+          columnId,
+          columnNomProduit,
+          columnNomPrenom,
+          columnTel,
+          columnCoutTotal,
+          columnEtatLivraison,
+        ],
+        where: '$columnId = ?',
+        whereArgs: [id]);
+    if (maps.length > 0) {
+      return Order.fromMap(maps.first);
+    } else {
+      print('hroihnroh');
+    }
+    return null;
+  }
+
+  Future insertReceptionnaire(Receptionnaire receptionnaire) async {
+    List<Map> maps = await _db.query(tableLivreur);
+    if (maps.length > 0) {
+    } else {
+      await _db
+          .insert(tableReceptionnaire, receptionnaire.toMap())
+          .catchError((e) {
+        print(e);
+      });
+    }
+  }
+
+  Future<Receptionnaire> getReceptionnaire(int id) async {
+    List<Map> maps = await _db.query(tableReceptionnaire,
+        columns: [columnId, columnNomPrenom, columnTel],
+        where: '$columnId = ?',
+        whereArgs: [id]);
+    if (maps.length > 0) {
+      return Receptionnaire.fromMap(maps.first);
+    } else {
+      print('hroihnroh');
+    }
+    return null;
+  }
+
+  Future close() async => _db.close();
 }

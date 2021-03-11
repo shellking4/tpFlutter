@@ -1,6 +1,8 @@
 import 'dart:async';
-import 'package:delivery_app/database/dbServices.dart';
 import 'package:delivery_app/database/database.dart';
+import 'package:delivery_app/models/Livreur.dart';
+import 'package:delivery_app/models/Order.dart';
+import 'package:delivery_app/models/Receptionnaire.dart';
 import 'package:delivery_app/utils/button.dart';
 import 'package:delivery_app/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -20,11 +22,11 @@ class _LoginFormState extends State<LoginForm> {
   TextEditingController loginFieldController;
   TextEditingController passFieldController;
   final _formKey = GlobalKey<FormState>();
-  DbService dbService;
   bool _isInAsyncCall = false;
   bool _isInvalidAsyncLogin = false;
   Livreur livreur;
   Receptionnaire receptionnaire;
+  Order order;
 
   // ignore: unused_element
   _submit() async {
@@ -40,7 +42,6 @@ class _LoginFormState extends State<LoginForm> {
   @override
   initState() {
     super.initState();
-    dbService = DbService();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
   }
