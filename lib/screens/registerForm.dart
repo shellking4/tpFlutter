@@ -1,22 +1,23 @@
 import 'dart:async';
+import 'package:delivery_app/screens/authScreen.dart';
+import 'package:delivery_app/database/database.dart';
 import 'package:delivery_app/database/dbServices.dart';
-import 'package:delivery_app/screens/registerScreen.dart';
 import 'package:delivery_app/utils/button.dart';
 import 'package:delivery_app/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:delivery_app/database/database.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:delivery_app/screens/livreurDash.dart';
 
-class LoginForm extends StatefulWidget {
+class RegisterForm extends StatefulWidget {
   @override
-  _LoginFormState createState() => _LoginFormState();
+  _RegisterForm createState() => _RegisterForm();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _RegisterForm extends State<RegisterForm> {
+  String email;
   String login;
   String password;
   bool _autoValidate = false;
+  TextEditingController emailFieldController;
   TextEditingController loginFieldController;
   TextEditingController passFieldController;
   final _formKey = GlobalKey<FormState>();
@@ -35,27 +36,41 @@ class _LoginFormState extends State<LoginForm> {
         _isInAsyncCall = true;
       });
 
-      dbService
-          .getLivreurByLoginAndPassword(login, password)
-          .then((fetchedLivreur) {
+      dbService.getLivreurByEmail(email).then((fetchedLivreur) {
         setState(() {
-          if (fetchedLivreur != null) {
-            this.livreur = fetchedLivreur;
-            print(livreur.email);
-          }
+          this.livreur = fetchedLivreur;
         });
       });
-      if (livreur == null) {
-        toDoInFailureCase();
-      } else if (livreur != null) {
-        setState(() {
-          _isInAsyncCall = false;
-        });
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => LivreurDash()));
+      if (livreur != null) {
+        if (email == livreur.email) {
+          setState(() {
+            _isInAsyncCall = false;
+          });
+          toDoInFailureCase();
+        } else {
+          loadLivreurThenRoute();
+        }
+      } else {
+        loadLivreurThenRoute();
       }
+    }
+  }
+
+  void loadLivreurThenRoute() async {
+    _isInAsyncCall = false;
+    var livreurs = await dbService.getAllLivreurs();
+    if (livreurs != null && livreurs.length > 0) {
+      await dbService.insertLivreur(email, login, password);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => AuthScreen(size: 3)));
+    } else {
+      await dbService.insertLivreur(email, login, password);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => AuthScreen(size: 3)));
     }
   }
 
@@ -74,7 +89,7 @@ class _LoginFormState extends State<LoginForm> {
                   fontFamily: "prata"),
             ),
             content: Text(
-              "Login ou Mot de passe incorrect",
+              "Cet email est déjà pris !!",
               textAlign: TextAlign.center,
             ),
             actions: <Widget>[
@@ -95,34 +110,51 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   initState() {
+    super.initState();
     dbService = DbService();
-    startTime();
+    emailFieldController = TextEditingController();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
-    super.initState();
   }
 
-  String _validateField(String value) {
+  String _validateLogin(String value) {
     if (value.length == 0) {
-      return "Veuillez remplir ce champ";
+      return "Veuillez entrer votre login";
     }
     return null;
   }
 
+  bool validateEmail(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    return (!regex.hasMatch(value)) ? false : true;
+  }
+
   void clearFields() {
+    emailFieldController.text = '';
     loginFieldController.text = '';
     passFieldController.text = '';
   }
 
-  startTime() async {
-    var _duration = new Duration(seconds: 3);
-    return Timer(_duration, loadInformation);
+  String _validateEmail(String value) {
+    if (value.length == 0) {
+      return "Veuillez entrer votre email";
+    }
+    if (validateEmail(value) == false) {
+      return "Votre email n'est pas valide";
+    }
+    return null;
   }
 
-  loadInformation() async {
-    dbService.insertOrder("Jordan SMITH", "Volkswaggen", "62798845", "0", 5000);
-    dbService.insertLivreur("jordan@smith.org", "livreur1", "12345");
-    dbService.insertRecepionnaire("Jordan SMITH", "62798845");
+  String _validatePassword(String value) {
+    if (value.length == 0) {
+      return "Veuillez entrer un mot de passe";
+    }
+    if (value.length < 8) {
+      return "Le mot de passe doit faire 8 caractères au moins";
+    }
+    return null;
   }
 
   @override
@@ -137,7 +169,7 @@ class _LoginFormState extends State<LoginForm> {
             children: <Widget>[
               SizedBox(height: 40.0),
               CircleAvatar(
-                //child: Icon(Icons.perm_identity, color: Colors.black),
+                child: Icon(Icons.perm_identity, color: Colors.black),
                 radius: 50,
                 backgroundImage: AssetImage('images/avatar.png'),
               ),
@@ -148,6 +180,17 @@ class _LoginFormState extends State<LoginForm> {
                   autovalidate: _autoValidate,
                   child: Column(children: <Widget>[
                     TextFormField(
+                        controller: emailFieldController,
+                        keyboardType: TextInputType.emailAddress,
+                        textAlign: TextAlign.center,
+                        onSaved: (value) {
+                          email = value;
+                        },
+                        decoration:
+                            kTextFieldDecoration.copyWith(hintText: 'Email'),
+                        validator: _validateEmail),
+                    SizedBox(height: 20.0),
+                    TextFormField(
                         controller: loginFieldController,
                         keyboardType: TextInputType.text,
                         textAlign: TextAlign.center,
@@ -156,7 +199,7 @@ class _LoginFormState extends State<LoginForm> {
                         },
                         decoration:
                             kTextFieldDecoration.copyWith(hintText: 'Login'),
-                        validator: _validateField),
+                        validator: _validateLogin),
                     SizedBox(height: 20.0),
                     TextFormField(
                         controller: passFieldController,
@@ -167,21 +210,21 @@ class _LoginFormState extends State<LoginForm> {
                         },
                         decoration: kTextFieldDecoration.copyWith(
                             hintText: 'Mot de Passe'),
-                        validator: _validateField),
+                        validator: _validatePassword),
                     SizedBox(height: 50.0),
                     RoundedButton(
-                        title: "S'AUTHENTIFIER",
+                        title: "S'INSCRIRE",
                         color: Color(0xFF262283),
                         width: 300.0,
                         onPressed: () {
                           verifyForm(context);
                         }),
-                    SizedBox(height: 50.0),
+                    SizedBox(height: 25.0),
                     Center(
                         child: FlatButton(
-                      child: Text("Pas de compte ?  Inscrivez-vous",
+                      child: Text("CONNEXION",
                           style: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: 13.0,
                               color: Color(0xFF262283),
                               fontWeight: FontWeight.bold,
                               fontFamily: "prata")),
@@ -190,9 +233,10 @@ class _LoginFormState extends State<LoginForm> {
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    RegisterScreen()));
+                                    AuthScreen(size: 3)));
                       },
-                    ))
+                    )),
+                    SizedBox(height: 25.0),
                   ]))
             ],
           ),

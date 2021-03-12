@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:delivery_app/screens/authScreen.dart';
 import 'package:delivery_app/screens/homeScreen.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +24,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   route() {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        context, MaterialPageRoute(builder: (context) => AuthScreen()));
   }
 
   @override
@@ -41,8 +42,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Center(
-                  child: CircleAvatar(
-                backgroundImage: AssetImage("images/app_logo.png"),
+                  child: Image(
+                image: AssetImage("images/appLogo.jpeg"),
+                height: 160.0,
+                width: 160.0,
               )),
               SizedBox(
                 height: 68.0,
