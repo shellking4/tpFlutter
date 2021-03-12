@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:delivery_app/database/database.dart';
+import 'package:delivery_app/service/database.dart';
 import 'package:delivery_app/models/Livreur.dart';
 import 'package:delivery_app/models/Order.dart';
 import 'package:delivery_app/models/Receptionnaire.dart';
@@ -7,6 +7,7 @@ import 'package:delivery_app/utils/button.dart';
 import 'package:delivery_app/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:delivery_app/screens/livreurDash.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -16,32 +17,84 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   String login;
   String password;
-  String message;
   bool _autoValidate = false;
-  bool _loginExist = false;
   TextEditingController loginFieldController;
   TextEditingController passFieldController;
   final _formKey = GlobalKey<FormState>();
   bool _isInAsyncCall = false;
+  // ignore: unused_field
   bool _isInvalidAsyncLogin = false;
+  // ignore: unused_field
+  bool _isInvalidAsyncPass = false;
+  DatabaseProvider db = DatabaseProvider();
   Livreur livreur;
   Receptionnaire receptionnaire;
   Order order;
 
   // ignore: unused_element
-  _submit() async {
+  verifyForm(BuildContext context) async {
     if (_formKey.currentState.validate() == true) {
       _formKey.currentState.save();
       FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
         _isInAsyncCall = true;
       });
+
+      db.getLivreur(0).then((fetchedLivreur) {
+        setState(() {
+          if (fetchedLivreur != null) {
+            this.livreur = fetchedLivreur;
+          }
+        });
+      });
+      if (login == livreur.login && password == livreur.password) {
+        setState(() {
+          _isInAsyncCall = false;
+        });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => LivreurDash()));
+      } else {
+        _isInAsyncCall = false;
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(
+                  "Erreur",
+                  style: TextStyle(
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "prata"),
+                ),
+                content: Text(
+                  "Login ou Mot de passe incorrect",
+                  textAlign: TextAlign.center,
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("OK",
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "prata")),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              );
+            });
+      }
     }
   }
 
   @override
   initState() {
     super.initState();
+    db.create();
+    startTime();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
   }
@@ -63,7 +116,15 @@ class _LoginFormState extends State<LoginForm> {
     return Timer(_duration, loadInformation);
   }
 
-  loadInformation() {}
+  loadInformation() async {
+    order = new Order(0, "Jordan SMITH", "Volkswaggen", "62798845", 5000, "0");
+    livreur = new Livreur(0, "livreur1", "12345");
+    receptionnaire = new Receptionnaire(0, "Jordan SMITH", "62798845");
+
+    await db.insertLivreur(livreur);
+    await db.insertOrder(order);
+    await db.insertReceptionnaire(receptionnaire);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +138,8 @@ class _LoginFormState extends State<LoginForm> {
             children: <Widget>[
               SizedBox(height: 40.0),
               CircleAvatar(
-                child: Icon(Icons.perm_identity, color: Colors.black),
-                radius: 30,
+                //child: Icon(Icons.perm_identity, color: Colors.black),
+                radius: 50,
                 backgroundImage: AssetImage('images/avatar.png'),
               ),
               SizedBox(height: 48.0),
@@ -114,7 +175,7 @@ class _LoginFormState extends State<LoginForm> {
                         color: Color(0xFF1B5E20),
                         width: 300.0,
                         onPressed: () {
-                          _submit();
+                          verifyForm(context);
                         }),
                   ]))
             ],

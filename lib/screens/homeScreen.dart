@@ -1,5 +1,6 @@
 import 'package:delivery_app/utils/bottomNavBar.dart';
 import 'package:flutter/material.dart';
+import 'package:delivery_app/utils/appBar.dart';
 
 // ignore: must_be_immutable
 class HomeScreen extends StatelessWidget {
@@ -10,23 +11,7 @@ class HomeScreen extends StatelessWidget {
         onWillPop: () async => false,
         child: Scaffold(
           backgroundColor: Colors.white,
-          appBar: AppBar(
-            toolbarHeight: 70.0,
-            title: Row(
-              children: <Widget>[
-                SizedBox(width: 56.0),
-                Text(
-                  "GOTHAM FOOD DELIVERY",
-                  style: TextStyle(
-                      fontSize: 14.0,
-                      letterSpacing: 0.3,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Prata"),
-                ),
-              ],
-            ),
-            centerTitle: true,
-          ),
+          appBar: MyAppBar.getAppBar(context, 56),
           bottomNavigationBar: BottomNavBar(),
         ));
   }

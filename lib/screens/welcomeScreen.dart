@@ -41,8 +41,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Center(
-                  child: CircleAvatar(
-                backgroundImage: AssetImage("images/app_logo.png"),
+                  child: Image(
+                image: AssetImage("images/appLogo.jpeg"),
+                height: 160.0,
+                width: 160.0,
               )),
               SizedBox(
                 height: 68.0,
