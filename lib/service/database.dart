@@ -17,6 +17,7 @@ class DatabaseProvider {
   final String columnTel = 'tel';
   final String columnCoutTotal = 'coutTotal';
   final String columnEtatLivraison = 'etatLivraison';
+  final String columnEmail = 'email';
   final String columnLogin = 'login';
   final String columnPassword = 'password';
 
@@ -48,7 +49,7 @@ class DatabaseProvider {
     await _db.execute("""
             create table $tableReceptionnaire ($columnId integer primary key,$columnNomPrenom text not null,$columnTel text)""");
     await _db.execute("""
-            create table $tableLivreur ($columnId integer primary key,$columnLogin text not null,$columnPassword text)""");
+            create table $tableLivreur ($columnId integer primary key,$columnEmail text not null,$columnLogin text not null,$columnPassword text)""");
     await _db.execute("""
             create table $tableLivraison ($columnId integer primary key,$columnNomPrenom text not null,$columnNomProduit text not null,$columnEtatLivraison text not null,$columnTel text not null,$columnCoutTotal integer)""");
   }
@@ -67,6 +68,7 @@ class DatabaseProvider {
     List<Map> maps = await _db.query(tableLivreur,
         columns: [
           columnId,
+          columnEmail,
           columnLogin,
           columnPassword,
         ],
@@ -76,6 +78,19 @@ class DatabaseProvider {
       return Livreur.fromMap(maps.first);
     } else {
       print('hroihnroh');
+    }
+    return null;
+  }
+
+  Future<List<Livreur>> getAllLivreurs() async {
+    List<Livreur> liveurList = new List();
+    List<Map> maps = await _db.query(tableLivreur);
+    if (maps.length > 0) {
+      maps.forEach((element) {
+        liveurList.add(Livreur.fromMap(element));
+      });
+
+      return liveurList;
     }
     return null;
   }

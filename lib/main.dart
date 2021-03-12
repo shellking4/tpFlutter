@@ -1,5 +1,6 @@
 import 'package:delivery_app/screens/authScreen.dart';
 import 'package:delivery_app/screens/livreurDash.dart';
+import 'package:delivery_app/screens/registerScreen.dart';
 import 'package:delivery_app/screens/welcomeScreen.dart';
 import 'package:delivery_app/screens/homeScreen.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class DeliveryApp extends StatelessWidget {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         HomeScreen.id: (context) => HomeScreen(),
         AuthScreen.id: (context) => AuthScreen(),
+        RegisterScreen.id: (conext) => RegisterScreen(),
         LivreurDash.id: (context) => LivreurDash()
       },
     );

@@ -76,7 +76,7 @@ class _LoginFormState extends State<LoginForm> {
                   FlatButton(
                     child: Text("OK",
                         style: TextStyle(
-                            fontStyle: FontStyle.italic,
+                            fontSize: 13.0,
                             fontWeight: FontWeight.bold,
                             fontFamily: "prata")),
                     onPressed: () {
@@ -118,7 +118,7 @@ class _LoginFormState extends State<LoginForm> {
 
   loadInformation() async {
     order = new Order(0, "Jordan SMITH", "Volkswaggen", "62798845", 5000, "0");
-    livreur = new Livreur(0, "livreur1", "12345");
+    livreur = new Livreur(0, "jordan@smith.org", "livreur1", "12345");
     receptionnaire = new Receptionnaire(0, "Jordan SMITH", "62798845");
 
     await db.insertLivreur(livreur);
@@ -172,11 +172,20 @@ class _LoginFormState extends State<LoginForm> {
                     SizedBox(height: 50.0),
                     RoundedButton(
                         title: "S'AUTHENTIFIER",
-                        color: Color(0xFF1B5E20),
+                        color: Color(0xFF262283),
                         width: 300.0,
                         onPressed: () {
                           verifyForm(context);
                         }),
+                    SizedBox(height: 50.0),
+                    Center(
+                        child: Text(
+                      "Pas de Compte ? Vous enregistrer",
+                      style: TextStyle(
+                          color: Color(0xFF29434e),
+                          fontFamily: "prata",
+                          fontWeight: FontWeight.bold),
+                    ))
                   ]))
             ],
           ),
