@@ -24,7 +24,7 @@ class MyAppBar extends StatelessWidget {
           ),
         ],
       ),
-      centerTitle: true,
+      //centerTitle: true,
     );
   }
 

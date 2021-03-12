@@ -14,7 +14,7 @@ class Livreur {
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{
       "_id": _id,
-      "_email": _email,
+      "email": _email,
       "login": _login,
       "password": _password,
     };

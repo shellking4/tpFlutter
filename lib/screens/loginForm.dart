@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:delivery_app/screens/registerScreen.dart';
 import 'package:delivery_app/service/database.dart';
 import 'package:delivery_app/models/Livreur.dart';
 import 'package:delivery_app/models/Order.dart';
@@ -40,14 +41,17 @@ class _LoginFormState extends State<LoginForm> {
         _isInAsyncCall = true;
       });
 
-      db.getLivreur(0).then((fetchedLivreur) {
+      db.getLivreurByLogin(login).then((fetchedLivreur) {
         setState(() {
           if (fetchedLivreur != null) {
             this.livreur = fetchedLivreur;
+            print(livreur.email);
           }
         });
       });
-      if (login == livreur.login && password == livreur.password) {
+      if (livreur == null) {
+        toDoInFailureCase();
+      } else if (livreur != null) {
         setState(() {
           _isInAsyncCall = false;
         });
@@ -55,48 +59,51 @@ class _LoginFormState extends State<LoginForm> {
             context,
             MaterialPageRoute(
                 builder: (BuildContext context) => LivreurDash()));
-      } else {
-        _isInAsyncCall = false;
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(
-                  "Erreur",
-                  style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "prata"),
-                ),
-                content: Text(
-                  "Login ou Mot de passe incorrect",
-                  textAlign: TextAlign.center,
-                ),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text("OK",
-                        style: TextStyle(
-                            fontSize: 13.0,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "prata")),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  )
-                ],
-              );
-            });
       }
     }
   }
 
+  void toDoInFailureCase() {
+    _isInAsyncCall = false;
+    clearFields();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Erreur",
+              style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "prata"),
+            ),
+            content: Text(
+              "Login ou Mot de passe incorrect",
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("OK",
+                    style: TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "prata")),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
+  }
+
   @override
   initState() {
-    super.initState();
     db.create();
     startTime();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
+    super.initState();
   }
 
   String _validateField(String value) {
@@ -117,9 +124,10 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   loadInformation() async {
-    order = new Order(0, "Jordan SMITH", "Volkswaggen", "62798845", 5000, "0");
-    livreur = new Livreur(0, "jordan@smith.org", "livreur1", "12345");
-    receptionnaire = new Receptionnaire(0, "Jordan SMITH", "62798845");
+    var order =
+        new Order(0, "Jordan SMITH", "Volkswaggen", "62798845", 5000, "0");
+    var livreur = new Livreur(0, "jordan@smith.org", "livreur1", "12345");
+    var receptionnaire = new Receptionnaire(0, "Jordan SMITH", "62798845");
 
     await db.insertLivreur(livreur);
     await db.insertOrder(order);
@@ -179,12 +187,20 @@ class _LoginFormState extends State<LoginForm> {
                         }),
                     SizedBox(height: 50.0),
                     Center(
-                        child: Text(
-                      "Pas de Compte ? Vous enregistrer",
-                      style: TextStyle(
-                          color: Color(0xFF29434e),
-                          fontFamily: "prata",
-                          fontWeight: FontWeight.bold),
+                        child: FlatButton(
+                      child: Text("Pas de compte ?  Inscrivez-vous",
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Color(0xFF262283),
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "prata")),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    RegisterScreen()));
+                      },
                     ))
                   ]))
             ],

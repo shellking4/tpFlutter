@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:delivery_app/screens/loginForm.dart';
 
 class AuthScreen extends StatelessWidget {
+  final double size;
   static const String id = 'login_screen';
+
+  const AuthScreen({Key key, this.size}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
-        appBar: MyAppBar.getAppBar(context, 48),
+        appBar: (size == null)
+            ? MyAppBar.getAppBar(context, 50)
+            : MyAppBar.getAppBar(context, 3),
         body: Stack(
           children: [LoginForm()],
         ));

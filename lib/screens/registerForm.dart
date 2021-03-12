@@ -29,7 +29,7 @@ class _RegisterForm extends State<RegisterForm> {
   // ignore: unused_field
   bool _isInvalidAsyncPass = false;
   DatabaseProvider db = DatabaseProvider();
-  List<Livreur> livreurs;
+  Livreur livreur;
   Receptionnaire receptionnaire;
   Order order;
 
@@ -42,67 +42,83 @@ class _RegisterForm extends State<RegisterForm> {
         _isInAsyncCall = true;
       });
 
-      db.getAllLivreurs().then((fetchedLivreurs) {
+      db.getLivreurByEmail(email).then((fetchedLivreur) {
         setState(() {
-          if (fetchedLivreurs.isNotEmpty) {
-            this.livreurs = fetchedLivreurs;
-          }
+          this.livreur = fetchedLivreur;
         });
       });
-      for (var livreur in livreurs) {
+      if (livreur != null) {
         if (email == livreur.email) {
-          _isInAsyncCall = false;
-          clearFields();
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(
-                    "Erreur",
-                    style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "prata"),
-                  ),
-                  content: Text(
-                    "Cet email est déjà pris !!",
-                    textAlign: TextAlign.center,
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text("OK",
-                          style: TextStyle(
-                              fontSize: 13.0,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "prata")),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    )
-                  ],
-                );
-              });
+          setState(() {
+            _isInAsyncCall = false;
+          });
+          toDoInFailureCase();
+        } else {
+          loadLivreurThenRoute();
         }
-      }
-      setState(() {
-        _isInAsyncCall = false;
-      });
-      if (livreurs != null) {
-        var livreur = new Livreur(livreurs.length, email, login, password);
-        await db.insertLivreur(livreur);
       } else {
-        var livreur = new Livreur(0, email, login, password);
-        await db.insertLivreur(livreur);
+        loadLivreurThenRoute();
       }
-      Navigator.push(context,
-          MaterialPageRoute(builder: (BuildContext context) => AuthScreen()));
     }
+  }
+
+  void loadLivreurThenRoute() async {
+    _isInAsyncCall = false;
+    var livreurs = await db.getAllLivreurs();
+    if (livreurs != null && livreurs.length > 0) {
+      var livreur = new Livreur(livreurs.length, email, login, password);
+      await db.insertLivreur(livreur);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => AuthScreen(size: 3)));
+    } else {
+      var livreur = new Livreur(0, email, login, password);
+      await db.insertLivreur(livreur);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => AuthScreen(size: 3)));
+    }
+  }
+
+  void toDoInFailureCase() {
+    _isInAsyncCall = false;
+    clearFields();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Erreur",
+              style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: "prata"),
+            ),
+            content: Text(
+              "Cet email est déjà pris !!",
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("OK",
+                    style: TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "prata")),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
   }
 
   @override
   initState() {
     super.initState();
-    db.create();
     emailFieldController = TextEditingController();
     loginFieldController = TextEditingController();
     passFieldController = TextEditingController();
@@ -158,14 +174,6 @@ class _RegisterForm extends State<RegisterForm> {
           padding: EdgeInsets.symmetric(horizontal: 24.0),
           child: ListView(
             children: <Widget>[
-              Center(
-                  child: Text(
-                "INSCRIPTION LIVREUR",
-                style: TextStyle(
-                    color: Color(0xFF29434e),
-                    fontFamily: "prata",
-                    fontWeight: FontWeight.bold),
-              )),
               SizedBox(height: 40.0),
               CircleAvatar(
                 //child: Icon(Icons.perm_identity, color: Colors.black),
@@ -179,7 +187,7 @@ class _RegisterForm extends State<RegisterForm> {
                   autovalidate: _autoValidate,
                   child: Column(children: <Widget>[
                     TextFormField(
-                        controller: loginFieldController,
+                        controller: emailFieldController,
                         keyboardType: TextInputType.emailAddress,
                         textAlign: TextAlign.center,
                         onSaved: (value) {
@@ -212,19 +220,19 @@ class _RegisterForm extends State<RegisterForm> {
                         validator: _validatePassword),
                     SizedBox(height: 50.0),
                     RoundedButton(
-                        title: "S'AUTHENTIFIER",
+                        title: "S'INSCRIRE",
                         color: Color(0xFF262283),
                         width: 300.0,
                         onPressed: () {
                           verifyForm(context);
                         }),
-                    SizedBox(height: 50.0),
+                    SizedBox(height: 25.0),
                     Center(
                         child: FlatButton(
                       child: Text("CONNEXION",
                           style: TextStyle(
                               fontSize: 13.0,
-                              color: Colors.blue,
+                              color: Color(0xFF262283),
                               fontWeight: FontWeight.bold,
                               fontFamily: "prata")),
                       onPressed: () {
@@ -232,9 +240,10 @@ class _RegisterForm extends State<RegisterForm> {
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    AuthScreen()));
+                                    AuthScreen(size: 3)));
                       },
-                    ))
+                    )),
+                    SizedBox(height: 25.0),
                   ]))
             ],
           ),
